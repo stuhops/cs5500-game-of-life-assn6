@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void printAll(int arr[], const int ROW_SIZE) {
+void printBoard(int arr[], const int ROW_SIZE) {
   cout << " Grid:\n";
   for(int i = 0; i < ROW_SIZE; ++i) {
     for(int j = 0; j < ROW_SIZE; ++j) {
@@ -23,18 +23,25 @@ void printAll(int arr[], const int ROW_SIZE) {
 
 int main(int argc, char **argv) {
   const int ROW_SIZE = 8;
-  int arr[ROW_SIZE * ROW_SIZE] = {0,0,0,1,0,0,0,0,
-                                  0,0,1,1,0,0,0,0,
-                                  0,0,0,1,0,0,0,0,
+  int arr[ROW_SIZE * ROW_SIZE] = {0,0,0,0,0,0,0,0,
                                   0,0,0,0,0,0,0,0,
-                                  0,0,0,0,0,0,0,0,
+                                  0,0,0,0,1,0,0,0,
+                                  0,0,0,0,1,0,0,0,
+                                  0,0,0,0,1,0,0,0,
                                   0,0,0,0,0,0,0,0,
                                   0,0,0,0,0,0,0,0,
                                   0,0,0,0,0,0,0,0};
 
   int tmpArr[ROW_SIZE * ROW_SIZE];
+  for(int i = 0; i < ROW_SIZE; ++i) {
+    for(int j = 0; j < ROW_SIZE; ++j) {
+      tmpArr[ROW_SIZE * i + j] = arr[ROW_SIZE * i + j];
+    }
+  }
 
-  while(true) {
+  printBoard(arr, ROW_SIZE);
+
+  for(int cnt = 0; cnt < 3; cnt++){
     for(int i = 0; i < ROW_SIZE; ++i) {
       for(int j = 0; j < ROW_SIZE; ++j) {
         int neighbors = 0;
@@ -71,15 +78,24 @@ int main(int argc, char **argv) {
             neighbors += arr[ROW_SIZE * (i+1) + (j+1)];
 
         }
-        tmpArr[ROW_SIZE * i + j] = neighbors;
-        cout << " " << neighbors;
+
+
+        if(neighbors == 0 || neighbors == 1)
+          tmpArr[ROW_SIZE * i + j] = 0;
+        else if(neighbors == 3)
+          tmpArr[ROW_SIZE * i + j] = 1;
+        else if(neighbors > 3)
+          tmpArr[ROW_SIZE * i + j] = 0;
+
       }
-      cout << endl;
     }
-    printAll(arr, ROW_SIZE);
-    
-    // printAll(tmpArr, ROW_SIZE);
-    break;
+
+    for(int i = 0; i < ROW_SIZE; ++i) {
+      for(int j = 0; j < ROW_SIZE; ++j) {
+        arr[ROW_SIZE * i + j] = tmpArr[ROW_SIZE * i + j];
+      }
+    }
+    printBoard(arr, ROW_SIZE);
   }
 
 
