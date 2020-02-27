@@ -22,7 +22,19 @@ void printBoard(int arr[], const int ROW_SIZE, const int ROWS, string printMsg) 
 }
 
 
-int calcNeighbors(int arr[], const int ROW_SIZE, int i, int j) {
+void printArr(int arr[], const int ROW_SIZE, const int ROWS, string printMsg) {
+  cout << " " << printMsg << endl;
+  for(int i = 0; i < ROWS; ++i) {
+    for(int j = 0; j < ROW_SIZE; ++j) {
+      cout << " " << arr[ROW_SIZE * i + j];
+    }
+    cout << endl;
+  }
+  cout << endl;
+}
+
+
+int calcNeighbors(int arr[], const int ROW_SIZE, int rows, int i, int j) {
   int neighbors = 0;
 
   //north 3
@@ -46,7 +58,7 @@ int calcNeighbors(int arr[], const int ROW_SIZE, int i, int j) {
     neighbors += arr[ROW_SIZE * (i) + (j+1)];
 
   // South 3 
-  if(i+1 < ROW_SIZE) {
+  if(i+1 < rows) {
     // Upper left
     if(j != 0)
       neighbors += arr[ROW_SIZE * (i+1) + (j-1)];
@@ -61,6 +73,21 @@ int calcNeighbors(int arr[], const int ROW_SIZE, int i, int j) {
 }
 
 
+void makeNeighborMap(int SPLICE_SIZE, int ROW_SIZE, int graph[]) {
+  int tmpArr[SPLICE_SIZE];
+  for(int i = 0; i < SPLICE_SIZE; i++) {
+    tmpArr[i] = graph[i];
+  }
+
+  for(int i = 0; i < SPLICE_SIZE / ROW_SIZE; ++i) {
+    for(int j = 0; j < ROW_SIZE; ++j) {
+      tmpArr[ROW_SIZE * i + j]= calcNeighbors(graph, ROW_SIZE, SPLICE_SIZE / ROW_SIZE, i, j);
+    }
+  }
+  printArr(tmpArr, ROW_SIZE, SPLICE_SIZE / ROW_SIZE, "2");
+}
+
+
 int main(int argc, char **argv) {
 
   int rank, size;
@@ -68,65 +95,90 @@ int main(int argc, char **argv) {
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MCW, &rank);
   MPI_Comm_size(MCW, &size);
-  const int ITERS = 4;
-  const int ROW_SIZE = 8;
+  const int ITERS = 40;
+  const int ROW_SIZE = 16;
   const int SPLICE_SIZE = ROW_SIZE * (2 + ROW_SIZE / size);
 
-  int arr[SPLICE_SIZE];
 
   if(!rank) {                             //0  1  2  3  4  5  6  7
-    for(int iters = 0; iters < ITERS; ++iters) {
-      int graph[(1 + ROW_SIZE) * ROW_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0,
-                                              0, 0, 0, 0, 0, 0, 0, 0,
-                                              0, 0, 0, 0, 0, 0, 0, 0,
-                                              0, 0, 0, 0, 1, 0, 0, 0,
-                                              0, 0, 0, 0, 1, 0, 0, 0,
-                                              0, 0, 0, 0, 1, 0, 0, 0,
-                                              0, 0, 0, 0, 0, 0, 0, 0,
-                                              0, 0, 0, 0, 0, 0, 0, 0,
-                                              0, 0, 0, 0, 0, 0, 0, 0,
-                                              };
+    int graph[(1 + ROW_SIZE) * ROW_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            };
 
-      int tmpArrZ[SPLICE_SIZE - ROW_SIZE];
+  // int graph[(1+ROW_SIZE) * ROW_SIZE] = {0,0,0,0,0,0,0,0,
+  //                                       0,0,0,0,0,0,0,0,
+  //                                       0,1,0,0,0,0,0,0,
+  //                                       0,0,1,1,0,0,0,0,
+  //                                       0,1,1,0,0,0,0,0,
+  //                                       0,0,0,0,0,0,0,0,
+  //                                       0,0,0,0,0,0,0,0,
+  //                                       0,0,0,0,0,0,0,0,
+  //                                       0,0,0,0,0,0,0,0};
+
+      int tmpArrZ[SPLICE_SIZE];
       printBoard(&graph[ROW_SIZE], ROW_SIZE, ROW_SIZE, "Full Board:");
       
-      for(int j = 0; j < SPLICE_SIZE - ROW_SIZE; ++j) {
+    for(int iters = 0; iters < ITERS; ++iters) {
+      sleep(1);
+      for(int j = 0; j < SPLICE_SIZE; ++j) {
         tmpArrZ[j] = graph[j];
       }
-      // printBoard(tmpArrZ, ROW_SIZE, 3, "Board 0");
+      // printBoard(tmpArrZ, ROW_SIZE, (SPLICE_SIZE / ROW_SIZE) - 1, "Board 0");
 
       int tmpArr[SPLICE_SIZE];
       for(int i = 1; i < size; ++i) {
         for(int j = 0; j < SPLICE_SIZE; ++j) {
-          tmpArr[j] = graph[(i*2-1)*ROW_SIZE + j];
+          tmpArr[j] = graph[(i*(ROW_SIZE/size)-1)*ROW_SIZE + j];
         }
-        // printBoard(tmpArr, ROW_SIZE, 4, "Board " + to_string(i));
+        // printBoard(tmpArr, ROW_SIZE, (2 + ROW_SIZE / size), "Board " + to_string(i));
         MPI_Send(tmpArr, SPLICE_SIZE, MPI_INT, i, 0, MCW);
       }
 
-      for(int i = 0; i < ROW_SIZE; ++i) {
-        for(int j = 0; j < 2 + ROW_SIZE / size; ++j) {
-          int neighbors = calcNeighbors(arr, ROW_SIZE, i, j);
+      for(int i = 0; i < (SPLICE_SIZE / ROW_SIZE); ++i) {
+        for(int j = 0; j < ROW_SIZE; ++j) {
+          int neighbors = calcNeighbors(graph, ROW_SIZE, SPLICE_SIZE / ROW_SIZE, i, j);
 
-          if(neighbors == 0 || neighbors == 1)
+          if(neighbors == 0 || neighbors == 1) {
             tmpArrZ[ROW_SIZE * i + j] = 0;
-          else if(neighbors == 3)
+            // cout << 1 << "Hit on process " << rank << endl;
+          }
+          else if(neighbors == 3){
             tmpArrZ[ROW_SIZE * i + j] = 1;
-          else if(neighbors > 3)
+            // cout << 2 << " Hit on process " << rank << endl;
+          }
+          else if(neighbors > 3){
             tmpArrZ[ROW_SIZE * i + j] = 0;
+            // cout << 3 << " Hit on process " << rank << endl;
+          }
         }
       }
-      // printBoard(tmpArrZ, ROW_SIZE, 3, "Board 0");
+      // printBoard(tmpArrZ, ROW_SIZE, (SPLICE_SIZE / ROW_SIZE), "Board 0 After");
+      // printArr(tmpArrZ, ROW_SIZE, (SPLICE_SIZE / ROW_SIZE) - 1, "Board 0 After");
 
       for(int i = 0; i < SPLICE_SIZE - ROW_SIZE; ++i) {
-        arr[i] = tmpArrZ[i];
+        graph[i] = tmpArrZ[i];
       }
 
       for(int i = 1; i < size; ++i) {
         MPI_Recv(tmpArr, SPLICE_SIZE, MPI_INT, i, 0, MCW,MPI_STATUS_IGNORE);
 
         for(int j = ROW_SIZE; j < SPLICE_SIZE; ++j) {
-          graph[(i*2-1)*ROW_SIZE + j] = tmpArr[j];
+          graph[(i*(ROW_SIZE/size)-1)*ROW_SIZE + j] = tmpArr[j];
         }
       }
 
@@ -134,8 +186,10 @@ int main(int argc, char **argv) {
     }
   }
 
+  // <<<<<<<<<<<<<<<< SLAVES >>>>>>>>>>>>>>>>>>>>>
   if(rank) {
     for(int iters = 0; iters < ITERS; ++iters){
+      int arr[SPLICE_SIZE];
       int tmpArr[SPLICE_SIZE];
       MPI_Recv(arr, SPLICE_SIZE, MPI_INT, MPI_ANY_SOURCE, 0, MCW,MPI_STATUS_IGNORE);
 
@@ -145,8 +199,8 @@ int main(int argc, char **argv) {
 
       for(int i = 0; i < SPLICE_SIZE / ROW_SIZE; ++i) {
         for(int j = 0; j < ROW_SIZE; ++j) {
-          int neighbors = calcNeighbors(arr, ROW_SIZE, i, j);
-          // if(rank == 2 && i == 1 && (j == 3 || j == 4 || j == 5)) {
+          int neighbors = calcNeighbors(arr, ROW_SIZE, SPLICE_SIZE / ROW_SIZE, i, j);
+          // if(rank == 1 && i == 1 && (j == 5)) {
           //   cout << endl << "(i, j) = (" << i << ", " << j << ") - Neighbors = " << neighbors << endl << endl;
           // }
 
@@ -156,13 +210,18 @@ int main(int argc, char **argv) {
           }
           else if(neighbors == 3) {
             tmpArr[ROW_SIZE * i + j] = 1;
-            // cout << 2 << "Hit on process " << rank << endl;
+            // cout << 2 <<  "Hit on process " << rank << " at coord (" << i << ", " << j << ") " << endl;
           }
           else if(neighbors > 3) {
             tmpArr[ROW_SIZE * i + j] = 0;
-            // cout << 3 <<  "Hit on process " << rank << endl;
+            // cout << 3 <<  "Hit on process " << rank << " at coord (" << i << ", " << j << ") " << endl;
           }
         }
+      }
+      if(rank == 1) {
+        // makeNeighborMap(SPLICE_SIZE, ROW_SIZE, arr);
+        // printBoard(tmpArr, ROW_SIZE, 6, "Board 1 After");
+        // printArr(tmpArr, ROW_SIZE, 6, "Board 0 After");
       }
 
       MPI_Send(tmpArr, SPLICE_SIZE, MPI_INT, 0, 0, MCW);
