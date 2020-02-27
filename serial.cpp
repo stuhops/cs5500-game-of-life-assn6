@@ -64,10 +64,10 @@ int calcNeighbors(int arr[], const int ROW_SIZE, int i, int j) {
 int main(int argc, char **argv) {
   const int ROW_SIZE = 8;
   int arr[ROW_SIZE * ROW_SIZE] = {0,0,0,0,0,0,0,0,
+                                  0,1,0,0,0,0,0,0,
+                                  0,0,1,1,0,0,0,0,
+                                  0,1,1,0,0,0,0,0,
                                   0,0,0,0,0,0,0,0,
-                                  0,0,0,0,1,0,0,0,
-                                  0,0,0,0,1,0,0,0,
-                                  0,0,0,0,1,0,0,0,
                                   0,0,0,0,0,0,0,0,
                                   0,0,0,0,0,0,0,0,
                                   0,0,0,0,0,0,0,0};
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 
   printBoard(arr, ROW_SIZE);
 
-  for(int cnt = 0; cnt < 3; cnt++){
+  for(int cnt = 0; cnt < 10; cnt++){
     for(int i = 0; i < ROW_SIZE; ++i) {
       for(int j = 0; j < ROW_SIZE; ++j) {
         int neighbors = calcNeighbors(arr, ROW_SIZE, i, j);
