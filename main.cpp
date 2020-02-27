@@ -2,10 +2,13 @@
 #include <mpi.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <time.h>
+#include <chrono> 
 
 #define MCW MPI_COMM_WORLD
 
 using namespace std;
+using namespace std::chrono; 
 
 void printBoard(int arr[], const int ROW_SIZE, const int ROWS, string printMsg) {
   cout << " " << printMsg << endl;
@@ -96,29 +99,20 @@ int main(int argc, char **argv) {
   MPI_Comm_rank(MCW, &rank);
   MPI_Comm_size(MCW, &size);
   const int ITERS = 40;
-  const int ROW_SIZE = 16;
+  const int ROW_SIZE = 32;
   const int SPLICE_SIZE = ROW_SIZE * (2 + ROW_SIZE / size);
 
 
   if(!rank) {                             //0  1  2  3  4  5  6  7
-    int graph[(1 + ROW_SIZE) * ROW_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            };
+    srand(time(0));
+    int graph[(1 + ROW_SIZE) * ROW_SIZE];
+    for(int i = 0; i < ROW_SIZE; ++i) {
+      for(int j = 0; j < ROW_SIZE; ++j) {
+        graph[ROW_SIZE * i + j] = 0;
+        if(!(rand() % 5))
+          graph[ROW_SIZE * i + j] = 1;
+      }
+    }
 
   // int graph[(1+ROW_SIZE) * ROW_SIZE] = {0,0,0,0,0,0,0,0,
   //                                       0,0,0,0,0,0,0,0,
@@ -131,10 +125,16 @@ int main(int argc, char **argv) {
   //                                       0,0,0,0,0,0,0,0};
 
       int tmpArrZ[SPLICE_SIZE];
-      printBoard(&graph[ROW_SIZE], ROW_SIZE, ROW_SIZE, "Full Board:");
+      printBoard(&graph[ROW_SIZE], ROW_SIZE, ROW_SIZE, "Full Board at Iteration 0:");
       
     for(int iters = 0; iters < ITERS; ++iters) {
       sleep(1);
+
+      auto start = high_resolution_clock::now();
+      for(int i = 0; i < ROW_SIZE; ++i) {
+        graph[i] = 0;
+      }
+
       for(int j = 0; j < SPLICE_SIZE; ++j) {
         tmpArrZ[j] = graph[j];
       }
@@ -182,7 +182,12 @@ int main(int argc, char **argv) {
         }
       }
 
-      printBoard(&graph[ROW_SIZE], ROW_SIZE, ROW_SIZE, "Full Board:");
+      auto stop = high_resolution_clock::now(); 
+      auto duration = duration_cast<microseconds>(stop - start);
+      cout << " TIME: " << duration.count() << " microseconds" << endl;
+
+      string printMsg = "Full Board at iteration " + to_string(iters+1) + ":";
+      printBoard(&graph[ROW_SIZE], ROW_SIZE, ROW_SIZE, printMsg);
     }
   }
 
